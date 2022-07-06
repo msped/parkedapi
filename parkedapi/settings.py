@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    'users',
 
     ## Must stay at the bottom
     'django_cleanup.apps.CleanupConfig',
