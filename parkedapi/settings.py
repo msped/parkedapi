@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'users',
 
+    'rest_framework_simplejwt.token_blacklist',
     ## Must stay at the bottom
     'django_cleanup.apps.CleanupConfig',
 ]
