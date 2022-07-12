@@ -18,7 +18,7 @@ class BlacklistTokenView(APIView):
 
     def post(self, request):
         try:
-            refresh_token = request.data['refresh_token']
+            refresh_token = request.data['refresh']
             token = RefreshToken(refresh_token)
             token.blacklist()
             return Response(status=status.HTTP_200_OK)
