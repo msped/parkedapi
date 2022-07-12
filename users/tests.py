@@ -12,7 +12,7 @@ class AuthTests(APITestCase):
 
     def setUp(self):
         Profile.objects.create(
-            username="matt@mspe.me",
+            username="admin",
             email="matt@mspe.me",
             password=make_password("5up3R!97")
         )
@@ -21,18 +21,20 @@ class AuthTests(APITestCase):
         response = self.client.post(
             '/api/auth/register/',
             {
-                'username': 'test@gmail.com',
+                'username': 'test',
+                'email': 'test@gmail.com',
                 'password': '5up3R!98',
                 'password2': '5up3R!98'
             }
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def registration_invalid_email(self):
+    def registration_invalid_username(self):
         response = self.client.post(
             '/api/auth/register/',
             {
-                'username': 'test2gmail.com',
+                'username': '',
+                'email': 'test2@gmail.com',
                 'password': '5up3R!98',
                 'password2': '5up3R!98'
             }
@@ -41,7 +43,25 @@ class AuthTests(APITestCase):
         self.assertEqual(
             json.loads(response.content),
             {
-                "username": ["Enter a valid email address."]
+                "username": ["This field may not be blank."]
+            }
+        )
+
+    def registration_invalid_email(self):
+        response = self.client.post(
+            '/api/auth/register/',
+            {
+                'username': 'test2',
+                'email': 'test2gmail.com',
+                'password': '5up3R!98',
+                'password2': '5up3R!98'
+            }
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            json.loads(response.content),
+            {
+                "email": ["Enter a valid email address."]
             }
         )
 
@@ -49,7 +69,8 @@ class AuthTests(APITestCase):
         response = self.client.post(
             '/api/auth/register/',
             {
-                'username': 'test3@gmail.com',
+                'username': 'test3',
+                'email': 'test3@gmail.com',
                 'password': '5up4R!98',
                 'password2': '5up4R!97'
             }
@@ -66,7 +87,7 @@ class AuthTests(APITestCase):
         response = self.client.post(
             '/api/auth/token/',
             {
-                'username': 'matt@mspe.me',
+                'username': 'admin',
                 'password': '5up3R!97'
             }
         )
@@ -76,7 +97,7 @@ class AuthTests(APITestCase):
         access_request = self.client.post(
             '/api/auth/token/',
             {
-                'username': 'matt@mspe.me',
+                'username': 'admin',
                 'password': '5up3R!97'
             },
             format='json'
@@ -85,7 +106,7 @@ class AuthTests(APITestCase):
         response = self.client.post(
             '/api/auth/token/refresh/',
             {
-                'username': 'matt@mspe.me',
+                'username': 'admin',
                 'password': '5up3R!97',
                 'refresh': refresh_token
             },
@@ -93,9 +114,31 @@ class AuthTests(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def blacklist_token(self):
+        access_request = self.client.post(
+            '/api/auth/token/',
+            {
+                'username': 'admin',
+                'password': '5up3R!97'
+            },
+            format='json'
+        )
+        refresh_token = access_request.data['refresh']
+        access_token = access_request.data['access']
+        response = self.client.post(
+            '/api/auth/token/blacklist/',
+            {
+                'refresh': refresh_token
+            },
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        self.assertEqual(response.status_code, 200)
+
     def test_in_order(self):
         self.registration_working_response()
+        self.registration_invalid_username()
         self.registration_invalid_email()
         self.registration_passwords_dont_match()
         self.request_access_token()
         self.request_refresh_token()
+        self.blacklist_token()
