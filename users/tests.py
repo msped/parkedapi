@@ -134,6 +134,94 @@ class AuthTests(APITestCase):
         )
         self.assertEqual(response.status_code, 200)
 
+    def change_password_check_new_and_old(self):
+        profile = Profile.objects.get(username='admin')
+        access_request = self.client.post(
+            '/api/auth/token/',
+            {
+                'username': 'admin',
+                'password': '5up3R!97'
+            },
+            format='json'
+        )
+        access_token = access_request.data['access']
+        response = self.client.post(
+            f'/api/auth/change-password/{profile.id}/',
+            {
+                'old_password': '5up3R!97',
+                'new_password': '5up3R!97',
+                'new_password2': '5up3R!97'
+            },
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def change_password_wrong_old_password(self):
+        profile = Profile.objects.get(username='admin')
+        access_request = self.client.post(
+            '/api/auth/token/',
+            {
+                'username': 'admin',
+                'password': '5up3R!97'
+            },
+            format='json'
+        )
+        access_token = access_request.data['access']
+        response = self.client.post(
+            f'/api/auth/change-password/{profile.id}/',
+            {
+                'old_password': '5up3R!99',
+                'new_password': '5up3R!00',
+                'new_password2': '5up3R!00'
+            },
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def change_password_new_not_matching(self):
+        profile = Profile.objects.get(username='admin')
+        access_request = self.client.post(
+            '/api/auth/token/',
+            {
+                'username': 'admin',
+                'password': '5up3R!97'
+            },
+            format='json'
+        )
+        access_token = access_request.data['access']
+        response = self.client.post(
+            f'/api/auth/change-password/{profile.id}/',
+            {
+                'old_password': '5up3R!97',
+                'new_password': '5up3R!14',
+                'new_password2': '5up3R!83'
+            },
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def change_password_valid(self):
+        profile = Profile.objects.get(username='admin')
+        access_request = self.client.post(
+            '/api/auth/token/',
+            {
+                'username': 'admin',
+                'password': '5up3R!97'
+            },
+            format='json'
+        )
+        access_token = access_request.data['access']
+        response = self.client.post(
+            f'/api/auth/change-password/{profile.id}/',
+            {
+                'old_password': '5up3R!97',
+                'new_password': '5up3R!00',
+                'new_password2': '5up3R!00'
+            },
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        self.assertEqual(response.status_code, 200)
+
     def test_in_order(self):
         self.registration_working_response()
         self.registration_invalid_username()
@@ -142,3 +230,7 @@ class AuthTests(APITestCase):
         self.request_access_token()
         self.request_refresh_token()
         self.blacklist_token()
+        self.change_password_check_new_and_old()
+        self.change_password_new_not_matching()
+        self.change_password_wrong_old_password()
+        self.change_password_valid()
