@@ -19,24 +19,24 @@ class AuthTests(APITestCase):
 
     def registration_working_response(self):
         response = self.client.post(
-            '/api/auth/register/',
+            '/api/auth/users/',
             {
                 'username': 'test',
                 'email': 'test@gmail.com',
                 'password': '5up3R!98',
-                'password2': '5up3R!98'
+                're_password': '5up3R!98'
             }
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def registration_invalid_username(self):
         response = self.client.post(
-            '/api/auth/register/',
+            '/api/auth/users/',
             {
                 'username': '',
                 'email': 'test2@gmail.com',
                 'password': '5up3R!98',
-                'password2': '5up3R!98'
+                're_password': '5up3R!98'
             }
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -49,12 +49,12 @@ class AuthTests(APITestCase):
 
     def registration_invalid_email(self):
         response = self.client.post(
-            '/api/auth/register/',
+            '/api/auth/users/',
             {
                 'username': 'test2',
                 'email': 'test2gmail.com',
                 'password': '5up3R!98',
-                'password2': '5up3R!98'
+                're_password': '5up3R!98'
             }
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -67,25 +67,25 @@ class AuthTests(APITestCase):
 
     def registration_passwords_dont_match(self):
         response = self.client.post(
-            '/api/auth/register/',
+            '/api/auth/users/',
             {
                 'username': 'test3',
                 'email': 'test3@gmail.com',
                 'password': '5up4R!98',
-                'password2': '5up4R!97'
+                're_password': '5up4R!97'
             }
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(
             json.loads(response.content),
             {
-                "password": ["Password fields don't match"]
+                'non_field_errors': ["The two password fields didn't match."]
             }
         )
 
     def request_access_token(self):
         response = self.client.post(
-            '/api/auth/token/',
+            '/api/auth/jwt/create/',
             {
                 'username': 'admin',
                 'password': '5up3R!97'
@@ -95,7 +95,7 @@ class AuthTests(APITestCase):
 
     def request_refresh_token(self):
         access_request = self.client.post(
-            '/api/auth/token/',
+            '/api/auth/jwt/create/',
             {
                 'username': 'admin',
                 'password': '5up3R!97'
@@ -104,7 +104,7 @@ class AuthTests(APITestCase):
         )
         refresh_token = access_request.data['refresh']
         response = self.client.post(
-            '/api/auth/token/refresh/',
+            '/api/auth/jwt/refresh/',
             {
                 'username': 'admin',
                 'password': '5up3R!97',
@@ -116,7 +116,7 @@ class AuthTests(APITestCase):
 
     def blacklist_token(self):
         access_request = self.client.post(
-            '/api/auth/token/',
+            '/api/auth/jwt/create/',
             {
                 'username': 'admin',
                 'password': '5up3R!97'
@@ -126,7 +126,7 @@ class AuthTests(APITestCase):
         refresh_token = access_request.data['refresh']
         access_token = access_request.data['access']
         response = self.client.post(
-            '/api/auth/token/blacklist/',
+            '/api/auth/jwt/blacklist/',
             {
                 'refresh': refresh_token
             },
@@ -135,9 +135,8 @@ class AuthTests(APITestCase):
         self.assertEqual(response.status_code, 200)
 
     def change_password_check_new_and_old(self):
-        profile = Profile.objects.get(username='admin')
         access_request = self.client.post(
-            '/api/auth/token/',
+            '/api/auth/jwt/create/',
             {
                 'username': 'admin',
                 'password': '5up3R!97'
@@ -146,7 +145,7 @@ class AuthTests(APITestCase):
         )
         access_token = access_request.data['access']
         response = self.client.post(
-            f'/api/auth/change-password/{profile.id}/',
+            '/api/auth/change-password/',
             {
                 'old_password': '5up3R!97',
                 'new_password': '5up3R!97',
@@ -157,9 +156,8 @@ class AuthTests(APITestCase):
         self.assertEqual(response.status_code, 400)
 
     def change_password_wrong_old_password(self):
-        profile = Profile.objects.get(username='admin')
         access_request = self.client.post(
-            '/api/auth/token/',
+            '/api/auth/jwt/create/',
             {
                 'username': 'admin',
                 'password': '5up3R!97'
@@ -168,7 +166,7 @@ class AuthTests(APITestCase):
         )
         access_token = access_request.data['access']
         response = self.client.post(
-            f'/api/auth/change-password/{profile.id}/',
+            '/api/auth/change-password/',
             {
                 'old_password': '5up3R!99',
                 'new_password': '5up3R!00',
@@ -179,9 +177,8 @@ class AuthTests(APITestCase):
         self.assertEqual(response.status_code, 400)
 
     def change_password_new_not_matching(self):
-        profile = Profile.objects.get(username='admin')
         access_request = self.client.post(
-            '/api/auth/token/',
+            '/api/auth/jwt/create/',
             {
                 'username': 'admin',
                 'password': '5up3R!97'
@@ -190,7 +187,7 @@ class AuthTests(APITestCase):
         )
         access_token = access_request.data['access']
         response = self.client.post(
-            f'/api/auth/change-password/{profile.id}/',
+            '/api/auth/change-password/',
             {
                 'old_password': '5up3R!97',
                 'new_password': '5up3R!14',
@@ -201,9 +198,9 @@ class AuthTests(APITestCase):
         self.assertEqual(response.status_code, 400)
 
     def change_password_valid(self):
-        profile = Profile.objects.get(username='admin')
+        
         access_request = self.client.post(
-            '/api/auth/token/',
+            '/api/auth/jwt/create/',
             {
                 'username': 'admin',
                 'password': '5up3R!97'
@@ -212,7 +209,7 @@ class AuthTests(APITestCase):
         )
         access_token = access_request.data['access']
         response = self.client.post(
-            f'/api/auth/change-password/{profile.id}/',
+            '/api/auth/change-password/',
             {
                 'old_password': '5up3R!97',
                 'new_password': '5up3R!00',
