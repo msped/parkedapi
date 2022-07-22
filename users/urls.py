@@ -7,6 +7,7 @@ from .views import (
 
 urlpatterns = [
     path('', include('djoser.urls.jwt')),
+    path('', include('djoser.urls')),
     path('jwt/blacklist/', BlacklistTokenView.as_view(), name="logout"),
     path(
         'change-password/',
