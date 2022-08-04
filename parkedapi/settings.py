@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'djoser',
     'corsheaders',
     'users',
+    'posts',
 
     'rest_framework_simplejwt.token_blacklist',
     ## Must stay at the bottom
