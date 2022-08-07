@@ -7,7 +7,7 @@ from users.models import Profile
 class Post(models.Model):
     author = models.ForeignKey(Profile, on_delete=models.CASCADE)
     slug = models.UUIDField(editable=False, default=uuid.uuid4, unique=True)
-    image = models.ImageField(upload_to="")
+    image = models.ImageField(upload_to="user_content/")
     created_at = models.DateTimeField(auto_now_add=True)
     description = models.CharField(max_length=140)
 
