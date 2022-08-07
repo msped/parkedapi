@@ -2,32 +2,68 @@
 
 ## Endpoints
 
+The layout for each each point is 
+
+```URL METHOD```
+
+```
+{ 
+    POST Dict 
+}
+```
+
 ### Obtain Token (Login)
 
 ```/api/auth/jwt/create/ POST```
 
-Taking the `username` and `password` as post parameters.
+```
+{
+    'username': string, 
+    'password': string
+}
+```
 
 ### Refresh Token
 
 ```/api/auth/jwt/refresh/ POST```
 
-Taking the `refresh` token as a post parameter.
+```
+    {
+        'refresh': string
+    }
+```
 
 ### Blacklist Token (Logout)
 
 ```/api/auth/jwt/blacklist/ POST```
 
-Taking `refresh` token as a post parameter.
+```
+    {
+        'refresh': string
+    }
+```
 
 ### Register Account
 
 ```/api/auth/users/ POST```
 
-Taking `username`, `email`, `password` and `re_password` as post parameters.
+```
+{
+    'username': string, 
+    'password': string,
+    'password': string,
+    're_password': string
+}
+```
 
 ### Change password
 
 ```/api/auth/change-password POST```
 
-Taking `old_password`, `new_password` and `new_password2` as post parameters.
+```
+{
+    'old_password': string,
+    'new_password': string,
+    'new_password2': string
+}
+```
