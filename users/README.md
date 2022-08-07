@@ -1,6 +1,6 @@
 # Profile Auth App
 
-## Endpoints for Users
+## Endpoints
 
 ### Obtain Token (Login)
 
