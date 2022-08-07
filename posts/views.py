@@ -13,3 +13,7 @@ class PostNew(CreateAPIView):
     permission_classes = [IsAuthenticated]
     queryset = Post.objects.all()
 
+class CommentNew(CreateAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = Comment.objects.all()
