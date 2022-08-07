@@ -10,16 +10,16 @@ class Post(models.Model):
     image = models.ImageField(upload_to="user_content/")
     created_at = models.DateTimeField(auto_now_add=True)
     description = models.CharField(max_length=140)
+    comments_enabled = models.BooleanField(default=True)
 
     def get_likes_count(self):
         return PostLikes.objects.filter(post=self.id).count()
 
+    def get_comment_count(self):
+        return Comment.objects.filter(post=self.id).count()
+
     def __str__(self):
         return f'{self.image} - {self.created_at}'
-
-    def save(self, *args, **kwargs):
-        self.slug = uuid.uuid4()
-        super(Post, self).save(*args, **kwargs)
 
 class PostLikes(models.Model):
     post = models.ForeignKey(Post , on_delete=models.CASCADE)
