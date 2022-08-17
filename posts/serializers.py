@@ -28,3 +28,11 @@ class PostLikeSerializer(serializers.ModelSerializer):
             'post'
             'profile'
         ]
+
+class CommentsLikeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CommentLikes
+        fields = [
+            'comment'
+            'profile'
+        ]
