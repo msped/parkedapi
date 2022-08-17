@@ -2,6 +2,8 @@ from django.urls import path
 from .views import PostNew, CommentNew
 
 urlpatterns = [
-    path('post/new/', PostNew.as_view(), name="post"),
+    path('new/', PostNew.as_view(), name="post"),
     path('comment/new/', CommentNew.as_view(), name="comment"),
+    # path('post/like/<slug:slug>/', PostLike.as_view(), name="post_like"),
+    # path('comment/like/<slug:slug>/', CommentLike.as_view(), name="comment_like"),
 ]
