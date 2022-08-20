@@ -7,7 +7,6 @@ class PostSerializer(serializers.ModelSerializer):
         fields = [
             'author',
             'image',
-            'created_at',
             'description',
             'comments_enabled',
         ]
@@ -17,8 +16,7 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = [
             'profile',
-            'post',
-            'created_at'
+            'post'
         ]
 
 class PostLikeSerializer(serializers.ModelSerializer):
