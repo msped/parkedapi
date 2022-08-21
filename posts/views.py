@@ -19,6 +19,9 @@ class PostNew(CreateAPIView):
     permission_classes = [IsAuthenticated]
     queryset = Post.objects.all()
 
+    def perform_create(self, serializer):
+        serializer.save(author_id=self.request.user.id)
+
 class CommentNew(CreateAPIView):
     serializer_class = CommentSerializer
     permission_classes = [IsAuthenticated]
