@@ -41,18 +41,6 @@ This must be sent as `format='multipart'`
 
 ```/api/posts/like/:slug POST```
 
-```
-    {
-        'profile': int
-    }
-```
-
 ### Like Comment
 
 ```/api/posts/comment/like/:slug POST```
-
-```
-    {
-        'profile': int
-    }
-```
