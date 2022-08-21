@@ -31,6 +31,7 @@ class PostLikes(models.Model):
 class Comment(models.Model):
     profile = models.ForeignKey(Profile , on_delete=models.CASCADE)
     post = models.ForeignKey(Post , on_delete=models.CASCADE)
+    content = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def get_likes_count(self):
