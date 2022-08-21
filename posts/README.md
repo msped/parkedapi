@@ -28,12 +28,11 @@ This must be sent as `format='multipart'`
 
 ### New Comment 
 
-```/api/posts/comment/new POST```
+```/api/posts/:slug/comment/new POST```
 
 ```
     {
-        'profile': int,
-        'post': int
+        'content': string
     }
 ```
 
