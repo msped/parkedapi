@@ -18,12 +18,13 @@ The layout for each each point is
 
 ```
     {
-        'author': int,
         'image': file,
         'description': string,
         'comments_enabled': boolean
     }
 ```
+
+This must be sent as `format='multipart'`
 
 ### New Comment 
 
