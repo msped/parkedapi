@@ -33,9 +33,10 @@ class PostLike(APIView):
 
     def post(self, request, slug):
         # Create a post like obj or delete it
+        post = Post.objects.get(slug=slug)
         obj, created = PostLikes.objects.get_or_create(
-            post__slug=slug,
-            profile__id=request.user.id
+            post=post,
+            profile_id=request.user.id
         )
         if created:
             return Response(status=status.HTTP_201_CREATED)
@@ -48,9 +49,10 @@ class CommentLike(APIView):
 
     def post(self, request, slug):
         # Create a post like obj or delete it
+        comment = Post.objects.get(slug=slug)
         obj, created = CommentLikes.objects.get_or_create(
-            comment__slug=slug,
-            profile__id=request.user.id
+            comment=comment,
+            profile_id=request.user.id
         )
         if created:
             return Response(status=status.HTTP_201_CREATED)
