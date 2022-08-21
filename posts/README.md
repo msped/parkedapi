@@ -28,7 +28,7 @@ This must be sent as `format='multipart'`
 
 ### New Comment 
 
-```/api/posts/:slug/comment/new POST```
+```/api/posts/:slug/comment/new/ POST```
 
 ```
     {
@@ -38,8 +38,8 @@ This must be sent as `format='multipart'`
 
 ### Like Post
 
-```/api/posts/like/:slug POST```
+```/api/posts/like/:slug/ POST```
 
 ### Like Comment
 
-```/api/posts/comment/like/:slug POST```
+```/api/posts/comment/like/:slug/ POST```
