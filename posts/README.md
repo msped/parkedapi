@@ -42,4 +42,4 @@ This must be sent as `format='multipart'`
 
 ### Like Comment
 
-```/api/posts/comment/like/:slug/ POST```
+```/api/posts/comment/like/:id/ POST```
