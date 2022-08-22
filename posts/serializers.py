@@ -13,11 +13,14 @@ class PostSerializer(serializers.ModelSerializer):
         ]
 
 class CommentSerializer(serializers.ModelSerializer):
+    profile = serializers.PrimaryKeyRelatedField(read_only=True)
+    post = serializers.PrimaryKeyRelatedField(read_only=True)
     class Meta:
         model = Comment
         fields = [
             'profile',
-            'post'
+            'post',
+            'content'
         ]
 
 class PostLikeSerializer(serializers.ModelSerializer):
