@@ -25,7 +25,18 @@ class PostNew(CreateAPIView):
 class CommentNew(CreateAPIView):
     serializer_class = CommentSerializer
     permission_classes = [IsAuthenticated]
-    queryset = Comment.objects.all()
+    lookup_url_kwarg = 'slug'
+
+    def get_object(self):
+        slug = self.kwargs.get(self.lookup_url_kwarg)
+        post = Post.objects.get(slug=slug)
+        return post
+
+    def perform_create(self, serializer):
+        serializer.save(
+            profile_id=self.request.user.id,
+            post=self.get_object()
+        )
 
 class PostLike(APIView):
     serializer_class = PostLikeSerializer
