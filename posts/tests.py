@@ -146,8 +146,40 @@ class TestPostApp(APITestCase):
         )
         self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
 
+    def update_comment(self):
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': 'TestP455word!'
+            }
+        )
+        access_token = access_request.data['access']
+        comment = Comment.objects.get(content='This is a cool comment.')
+        response = self.client.patch(
+            f'/api/posts/comment/{comment.id}/',
+            {
+                'content': 'This is an awesome comment.'
+            },
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+
     def delete_comment(self):
-        pass
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': 'TestP455word!'
+            }
+        )
+        access_token = access_request.data['access']
+        comment = Comment.objects.get(content='This is an awesome comment.')
+        response = self.client.delete(
+            f'/api/posts/comment/{comment.id}/',
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
 
     def delete_post(self):
         pass
@@ -159,3 +191,5 @@ class TestPostApp(APITestCase):
         self.new_comment()
         self.comment_like()
         self.comment_unlike()
+        self.update_comment()
+        self.delete_comment()
