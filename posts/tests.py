@@ -112,7 +112,6 @@ class TestPostApp(APITestCase):
             },
             **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
         )
-        print(response.content)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def comment_like(self):
