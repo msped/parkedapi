@@ -1,8 +1,8 @@
 import shutil
 import tempfile
+import json
 
 from django.contrib.auth.hashers import make_password
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
 from PIL import Image
 from rest_framework import status
@@ -64,19 +64,88 @@ class TestPostApp(APITestCase):
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
 
     def post_like(self):
-        pass
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': 'TestP455word!'
+            }
+        )
+        access_token = access_request.data['access']
+        post = Post.objects.get(description='Test image of car')
+        response = self.client.post(
+            f'/api/posts/like/{post.slug}/',
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
 
     def post_unlike(self):
-        pass
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': 'TestP455word!'
+            }
+        )
+        access_token = access_request.data['access']
+        post = Post.objects.get(description='Test image of car')
+        response = self.client.post(
+            f'/api/posts/like/{post.slug}/',
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
 
     def new_comment(self):
-        pass
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': 'TestP455word!'
+            }
+        )
+        access_token = access_request.data['access']
+        post = Post.objects.get(description='Test image of car')
+        response = self.client.post(
+            f'/api/posts/{post.slug}/comment/new/',
+            {
+                'content': 'This is a cool comment.'
+            },
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        print(response.content)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def comment_like(self):
-        pass
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': 'TestP455word!'
+            }
+        )
+        access_token = access_request.data['access']
+        comment = Comment.objects.get(content='This is a cool comment.')
+        response = self.client.post(
+            f'/api/posts/comment/like/{comment.id}/',
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
 
     def comment_unlike(self):
-        pass
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': 'TestP455word!'
+            }
+        )
+        access_token = access_request.data['access']
+        comment = Comment.objects.get(content='This is a cool comment.')
+        response = self.client.post(
+            f'/api/posts/comment/like/{comment.id}/',
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
 
     def delete_comment(self):
         pass
@@ -86,3 +155,8 @@ class TestPostApp(APITestCase):
 
     def test_in_order(self):
         self.new_post()
+        self.post_like()
+        self.post_unlike()
+        self.new_comment()
+        self.comment_like()
+        self.comment_unlike()
