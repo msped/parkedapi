@@ -58,9 +58,9 @@ class CommentLike(APIView):
     serializer_class = CommentsLikeSerializer
     permission_classes = [IsAuthenticated]
 
-    def post(self, request, slug):
+    def post(self, request, comment_id):
         # Create a post like obj or delete it
-        comment = Post.objects.get(slug=slug)
+        comment = Comment.objects.get(id=comment_id)
         obj, created = CommentLikes.objects.get_or_create(
             comment=comment,
             profile_id=request.user.id
