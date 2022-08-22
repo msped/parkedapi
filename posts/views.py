@@ -1,5 +1,5 @@
 from rest_framework import status
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -69,3 +69,9 @@ class CommentLike(APIView):
             return Response(status=status.HTTP_201_CREATED)
         obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class CommentGetUpdateDestroy(RetrieveUpdateDestroyAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_url_kwarg = 'comment_id'
+    queryset = Comment.objects.all()
