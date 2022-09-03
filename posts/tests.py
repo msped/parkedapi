@@ -181,8 +181,24 @@ class TestPostApp(APITestCase):
         )
         self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
 
-    def delete_post(self):
+    def update_post(self):
         pass
+
+    def delete_post(self):
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': 'TestP455word!'
+            }
+        )
+        access_token = access_request.data['access']
+        post = Post.objects.get(description='Test image of car')
+        response = self.client.delete(
+            f'/api/posts/{post.slug}/',
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
 
     def test_in_order(self):
         self.new_post()
@@ -193,3 +209,4 @@ class TestPostApp(APITestCase):
         self.comment_unlike()
         self.update_comment()
         self.delete_comment()
+        self.delete_post()
