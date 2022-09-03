@@ -22,22 +22,6 @@ class PostNew(CreateAPIView):
     def perform_create(self, serializer):
         serializer.save(author_id=self.request.user.id)
 
-class CommentNew(CreateAPIView):
-    serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated]
-    lookup_url_kwarg = 'slug'
-
-    def get_object(self):
-        slug = self.kwargs.get(self.lookup_url_kwarg)
-        post = Post.objects.get(slug=slug)
-        return post
-
-    def perform_create(self, serializer):
-        serializer.save(
-            profile_id=self.request.user.id,
-            post=self.get_object()
-        )
-
 class PostLike(APIView):
     serializer_class = PostLikeSerializer
     permission_classes = [IsAuthenticated]
@@ -53,6 +37,29 @@ class PostLike(APIView):
             return Response(status=status.HTTP_201_CREATED)
         obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class PostGetUpdateDestroy(RetrieveUpdateDestroyAPIView):
+    serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_url_kwarg = 'slug'
+    lookup_field = 'slug'
+    queryset = Post.objects.all()
+
+class CommentNew(CreateAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_url_kwarg = 'slug'
+
+    def get_object(self):
+        slug = self.kwargs.get(self.lookup_url_kwarg)
+        post = Post.objects.get(slug=slug)
+        return post
+
+    def perform_create(self, serializer):
+        serializer.save(
+            profile_id=self.request.user.id,
+            post=self.get_object()
+        )
 
 class CommentLike(APIView):
     serializer_class = CommentsLikeSerializer
