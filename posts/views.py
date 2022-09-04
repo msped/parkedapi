@@ -9,7 +9,8 @@ from .serializers import (
     CommentSerializer,
     PostSerializer,
     PostLikeSerializer,
-    CommentsLikeSerializer
+    CommentsLikeSerializer,
+    PostPatchSerializer,
 )
 
 # Create your views here.
@@ -39,11 +40,15 @@ class PostLike(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class PostGetUpdateDestroy(RetrieveUpdateDestroyAPIView):
-    serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]
     lookup_url_kwarg = 'slug'
     lookup_field = 'slug'
     queryset = Post.objects.all()
+
+    def get_serializer_class(self):
+        if self.request.method == "PATCH":
+            return PostPatchSerializer
+        return PostSerializer
 
 class CommentNew(CreateAPIView):
     serializer_class = CommentSerializer
