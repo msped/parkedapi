@@ -1,6 +1,5 @@
 import shutil
 import tempfile
-import json
 
 from django.contrib.auth.hashers import make_password
 from django.test import override_settings
@@ -10,7 +9,7 @@ from rest_framework.test import APITestCase
 from users.models import Profile
 
 from .apps import PostsConfig
-from .models import Comment, CommentLikes, Post, PostLikes
+from .models import Comment, Post
 
 MEDIA_ROOT = tempfile.mkdtemp()
 
@@ -182,7 +181,23 @@ class TestPostApp(APITestCase):
         self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
 
     def update_post(self):
-        pass
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': 'TestP455word!'
+            }
+        )
+        access_token = access_request.data['access']
+        post = Post.objects.get(description='Test image of car')
+        response = self.client.patch(
+            f'/api/posts/{post.slug}/',
+            {
+                'description': 'Test description of car'
+            },
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def delete_post(self):
         access_request = self.client.post(
@@ -193,7 +208,7 @@ class TestPostApp(APITestCase):
             }
         )
         access_token = access_request.data['access']
-        post = Post.objects.get(description='Test image of car')
+        post = Post.objects.get(description='Test description of car')
         response = self.client.delete(
             f'/api/posts/{post.slug}/',
             **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
@@ -209,4 +224,5 @@ class TestPostApp(APITestCase):
         self.comment_unlike()
         self.update_comment()
         self.delete_comment()
+        self.update_post()
         self.delete_post()
