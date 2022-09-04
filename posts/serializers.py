@@ -12,6 +12,14 @@ class PostSerializer(serializers.ModelSerializer):
             'comments_enabled',
         ]
 
+class PostPatchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = [
+            'description',
+            'comments_enabled',
+        ]
+
 class CommentSerializer(serializers.ModelSerializer):
     profile = serializers.PrimaryKeyRelatedField(read_only=True)
     post = serializers.PrimaryKeyRelatedField(read_only=True)
