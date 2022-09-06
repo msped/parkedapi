@@ -13,10 +13,10 @@ class Post(models.Model):
     comments_enabled = models.BooleanField(default=True)
 
     def get_likes_count(self):
-        return PostLikes.objects.filter(post=self.id).count()
+        return PostLikes.objects.filter(post_id=self.id).count()
 
     def get_comment_count(self):
-        return Comment.objects.filter(post=self.id).count()
+        return Comment.objects.filter(post_id=self.id).count()
 
     def __str__(self):
         return f'{self.author.username} - {self.created_at}'
