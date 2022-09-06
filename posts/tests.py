@@ -2,6 +2,7 @@ import shutil
 import tempfile
 
 from django.contrib.auth.hashers import make_password
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
 from PIL import Image
 from rest_framework import status
@@ -9,12 +10,11 @@ from rest_framework.test import APITestCase
 from users.models import Profile
 
 from .apps import PostsConfig
-from .models import Comment, Post
+from .models import Comment, CommentLikes, Post, PostLikes
 
 MEDIA_ROOT = tempfile.mkdtemp()
 
 @override_settings(MEDIA_ROOT=MEDIA_ROOT)
-
 class TestPostApp(APITestCase):
 
     def setUp(self):
@@ -226,3 +226,91 @@ class TestPostApp(APITestCase):
         self.delete_comment()
         self.update_post()
         self.delete_post()
+
+@override_settings(MEDIA_ROOT=MEDIA_ROOT)
+class TestModels(APITestCase):
+    def setUp(self):
+        profile = Profile.objects.create(
+            first_name= 'Harold',
+            last_name= 'Finch',
+            username= 'admin',
+            password=make_password('TestP455word!')
+        )
+        profile.save()
+
+        profile_2 = Profile.objects.create(
+            first_name= 'John',
+            last_name= 'Reese',
+            username= 'asset',
+            password=make_password('TestP455word!')
+        )
+        profile_2.save()
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(MEDIA_ROOT, ignore_errors=True)
+        super().tearDownClass()
+
+    def temporary_image(self):
+        image = Image.new('RGB', (100, 100))
+        tmp_file = tempfile.NamedTemporaryFile(suffix='.jpg')
+        image.save(tmp_file, 'jpeg')
+        tmp_file.seek(0)
+        return tmp_file
+
+    def post_str(self):
+        profile = Profile.objects.get(username='admin')
+        new_post = Post.objects.create(
+            author= profile,
+            image=SimpleUploadedFile('test.png', b'testimage'),
+            description='Test'
+        )
+        new_post.save()
+        post = Post.objects.get(description='Test')
+        self.assertEqual(str(post), f'admin - {new_post.created_at}')
+
+    def post_likes_str(self):
+        post = Post.objects.get(description='Test')
+        profile = Profile.objects.get(username='asset')
+        post_like = PostLikes.objects.create(
+            post=post,
+            profile=profile
+        )
+        post_like.save()
+        like_instance = PostLikes.objects.get(
+            profile_id=profile.id,
+            post_id=post.id
+        )
+        self.assertEqual(str(like_instance), "asset likes admin's post")
+
+    def comment_str(self):
+        post = Post.objects.get(description='Test')
+        profile = Profile.objects.get(username='asset')
+        com = Comment.objects.create(
+            profile=profile,
+            post=post,
+            content='Cool post.'
+        )
+        com.save()
+        comment = Comment.objects.get(content='Cool post.')
+        self.assertEqual(str(comment), f'asset - admin - {post.created_at}')
+
+    def comment_likes_str(self):
+        profile = Profile.objects.get(username='admin')
+        comment = Comment.objects.get(content='Cool post.')
+        comment_like = CommentLikes.objects.create(
+            comment=comment,
+            profile=profile
+        )
+        comment_like.save()
+        like_instance = CommentLikes.objects.get(
+            profile_id=profile.id,
+            comment_id=comment.id
+        )
+        self.assertEqual(str(like_instance), "admin likes asset's comment")
+
+    def test_in_order(self):
+        self.post_str()
+        self.post_likes_str()
+        self.comment_str()
+        self.comment_likes_str()
