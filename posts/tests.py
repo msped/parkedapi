@@ -309,8 +309,23 @@ class TestModels(APITestCase):
         )
         self.assertEqual(str(like_instance), "admin likes asset's comment")
 
+    def post_comment_count(self):
+        post = Post.objects.get(description='Test')
+        self.assertEqual(post.get_comment_count(), 1)
+
+    def post_like_count(self):
+        post = Post.objects.get(description='Test')
+        self.assertEqual(post.get_likes_count(), 1)
+
+    def comment_likes_count(self):
+        comment = Comment.objects.get(content='Cool post.')
+        self.assertEqual(comment.get_likes_count(), 1)
+
     def test_in_order(self):
         self.post_str()
         self.post_likes_str()
         self.comment_str()
         self.comment_likes_str()
+        self.post_comment_count()
+        self.post_like_count()
+        self.comment_likes_count()
