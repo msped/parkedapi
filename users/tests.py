@@ -17,6 +17,10 @@ class AuthTests(APITestCase):
             password=make_password("5up3R!97")
         )
 
+    def profile_str(self):
+        profile = Profile.objects.get(username="admin")
+        self.assertEqual(str(profile), "admin's Profile")
+
     def registration_working_response(self):
         response = self.client.post(
             '/api/auth/users/',
@@ -198,7 +202,6 @@ class AuthTests(APITestCase):
         self.assertEqual(response.status_code, 400)
 
     def change_password_valid(self):
-        
         access_request = self.client.post(
             '/api/auth/jwt/create/',
             {
@@ -220,6 +223,7 @@ class AuthTests(APITestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_in_order(self):
+        self.profile_str()
         self.registration_working_response()
         self.registration_invalid_username()
         self.registration_invalid_email()
