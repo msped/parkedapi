@@ -43,3 +43,23 @@ This must be sent as `format='multipart'`
 ### Like Comment
 
 ```/api/posts/comment/like/:id/ POST```
+
+### Post
+
+```/api/posts/:slug/ GET```
+
+```/api/posts/:slug/ PATCH```
+
+```/api/posts/:slug/ DELETE```
+
+### Comment
+
+```/api/posts/comment/:id/ GET```
+
+```/api/posts/comment/:id/ PATCH```
+
+{
+    'content': string
+}
+
+```/api/posts/comment/:id/ DELETE```
