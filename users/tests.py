@@ -222,6 +222,58 @@ class AuthTests(APITestCase):
         )
         self.assertEqual(response.status_code, 200)
 
+    def follow_a_user(self):
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': '5up3R!00'
+            },
+            format='json'
+        )
+        access_token = access_request.data['access']
+        response = self.client.post(
+            '/api/auth/follow/test/',
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        profile = Profile.objects.get(username='admin')
+        self.assertTrue(profile.following.filter(username='test').exists())
+        self.assertEqual(response.status_code, 201)
+
+    def unfollow_a_user(self):
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': '5up3R!00'
+            },
+            format='json'
+        )
+        access_token = access_request.data['access']
+        response = self.client.post(
+            '/api/auth/follow/test/',
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        profile = Profile.objects.get(username='admin')
+        self.assertFalse(profile.following.filter(username='test').exists())
+        self.assertEqual(response.status_code, 204)
+
+    def follow_does_not_exist(self):
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': '5up3R!00'
+            },
+            format='json'
+        )
+        access_token = access_request.data['access']
+        response = self.client.post(
+            '/api/auth/follow/differentusername/',
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        self.assertEqual(response.status_code, 404)
+
     def test_in_order(self):
         self.profile_str()
         self.registration_working_response()
@@ -235,3 +287,6 @@ class AuthTests(APITestCase):
         self.change_password_new_not_matching()
         self.change_password_wrong_old_password()
         self.change_password_valid()
+        self.follow_a_user()
+        self.unfollow_a_user()
+        self.follow_does_not_exist()
