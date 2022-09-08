@@ -4,11 +4,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from django.shortcuts import get_object_or_404
 from .models import Profile
-from .serializers import (
-    ChangePasswordSerializer,
-)
+from .serializers import ChangePasswordSerializer
 
 class BlacklistTokenView(APIView):
     permission_classes = [IsAuthenticated]
@@ -41,3 +39,19 @@ class ChangePasswordView(UpdateAPIView):
             profile.save()
             return Response(status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class FollowView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, username):
+        obj = get_object_or_404(Profile, username=username)
+        return obj
+
+    def post(self, request, username):
+        url_username = self.get_object(username)
+        current_user = self.get_object(request.user.username)
+        if current_user.following.filter(username=url_username.username).exists():
+            current_user.following.remove(url_username)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        current_user.following.add(url_username)
+        return Response(status=status.HTTP_201_CREATED)
