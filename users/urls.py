@@ -3,6 +3,7 @@ from django.urls import path, include
 from .views import (
     BlacklistTokenView,
     ChangePasswordView,
+    FollowView,
 )
 
 urlpatterns = [
@@ -14,4 +15,5 @@ urlpatterns = [
         ChangePasswordView.as_view(),
         name="change_password"
     ),
+    path('follow/<str:username>/', FollowView.as_view(), name="follow")
 ]
