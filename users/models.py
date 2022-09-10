@@ -8,12 +8,21 @@ class Profile(AbstractUser):
     private_account = models.BooleanField(default=False)
     website = models.URLField(null=True, blank=True)
     bio = models.TextField(max_length=256, null=True, blank=True)
-    following = models.ManyToManyField(
-        'self',
-        symmetrical=False,
-        related_name='followers',
-        blank=True
-    )
 
     def __str__(self):
         return f"{self.username}'s Profile"
+
+class Followers(models.Model):
+    user = models.ForeignKey(
+        Profile,
+        on_delete=models.CASCADE,
+        related_name="current_%(class)s_related"
+    )
+    follower = models.ForeignKey(
+        Profile,
+        on_delete=models.CASCADE,
+        related_name="%(class)s_related"
+    )
+
+    def __str__(self):
+        return f'{self.follower.username} is following {self.user.username}'
