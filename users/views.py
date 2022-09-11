@@ -1,12 +1,14 @@
+from django.shortcuts import get_list_or_404, get_object_or_404
 from rest_framework import status
 from rest_framework.generics import UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.shortcuts import get_object_or_404
-from .models import Profile
-from .serializers import ChangePasswordSerializer
+
+from .models import Followers, Profile
+from .serializers import ChangePasswordSerializer, FollowersSerializer
+
 
 class BlacklistTokenView(APIView):
     permission_classes = [IsAuthenticated]
@@ -50,8 +52,23 @@ class FollowView(APIView):
     def post(self, request, username):
         url_username = self.get_object(username)
         current_user = self.get_object(request.user.username)
-        if current_user.following.filter(username=url_username.username).exists():
-            current_user.following.remove(url_username)
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        current_user.following.add(url_username)
-        return Response(status=status.HTTP_201_CREATED)
+        follow_model, created = Followers.objects.get_or_create(
+            user=current_user,
+            follower=url_username
+        )
+        if created:
+            return Response(status=status.HTTP_201_CREATED)
+        follow_model.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class GetFollowingView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self, username):
+        queryset = get_list_or_404(Followers, follower__username=username)
+        return queryset
+
+    def get(self, request, username):
+        following = self.get_queryset(username)
+        serializer = FollowersSerializer(following, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
