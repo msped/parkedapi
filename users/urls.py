@@ -4,6 +4,7 @@ from .views import (
     BlacklistTokenView,
     ChangePasswordView,
     FollowView,
+    GetFollowingView,
 )
 
 urlpatterns = [
@@ -15,5 +16,6 @@ urlpatterns = [
         ChangePasswordView.as_view(),
         name="change_password"
     ),
-    path('follow/<str:username>/', FollowView.as_view(), name="follow")
+    path('follow/<str:username>/', FollowView.as_view(), name="follow"),
+    path('following/<str:username>/', GetFollowingView.as_view(), name="get_following")
 ]
