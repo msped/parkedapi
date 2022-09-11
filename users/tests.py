@@ -238,6 +238,22 @@ class AuthTests(APITestCase):
         )
         self.assertEqual(response.status_code, 201)
 
+    def return_following(self):
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': '5up3R!00'
+            },
+            format='json'
+        )
+        access_token = access_request.data['access']
+        response = self.client.get(
+            '/api/auth/following/test/',
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        self.assertEqual(response.status_code, 200)
+
     def unfollow_a_user(self):
         access_request = self.client.post(
             '/api/auth/jwt/create/',
@@ -253,6 +269,22 @@ class AuthTests(APITestCase):
             **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
         )
         self.assertEqual(response.status_code, 204)
+
+    def return_following_empty(self):
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': '5up3R!00'
+            },
+            format='json'
+        )
+        access_token = access_request.data['access']
+        response = self.client.get(
+            '/api/auth/following/admin/',
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        self.assertEqual(response.status_code, 404)
 
     def follow_does_not_exist(self):
         access_request = self.client.post(
@@ -284,6 +316,7 @@ class AuthTests(APITestCase):
         self.change_password_wrong_old_password()
         self.change_password_valid()
         self.follow_a_user()
-        # self.return_followers()
+        self.return_following()
         self.unfollow_a_user()
+        self.return_following_empty()
         self.follow_does_not_exist()
