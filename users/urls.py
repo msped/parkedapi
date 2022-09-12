@@ -5,6 +5,7 @@ from .views import (
     ChangePasswordView,
     FollowView,
     GetFollowingView,
+    GetFollowersView,
 )
 
 urlpatterns = [
@@ -17,5 +18,6 @@ urlpatterns = [
         name="change_password"
     ),
     path('follow/<str:username>/', FollowView.as_view(), name="follow"),
-    path('following/<str:username>/', GetFollowingView.as_view(), name="get_following")
+    path('following/<str:username>/', GetFollowingView.as_view(), name="get_following"),
+    path('followers/<str:username>/', GetFollowersView.as_view(), name="get_followers"),
 ]
