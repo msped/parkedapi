@@ -53,8 +53,8 @@ class FollowView(APIView):
         url_username = self.get_object(username)
         current_user = self.get_object(request.user.username)
         follow_model, created = Followers.objects.get_or_create(
-            user=current_user,
-            follower=url_username
+            user=url_username,
+            follower=current_user
         )
         if created:
             return Response(status=status.HTTP_201_CREATED)
@@ -71,4 +71,16 @@ class GetFollowingView(APIView):
     def get(self, request, username):
         following = self.get_queryset(username)
         serializer = FollowersSerializer(following, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class GetFollowersView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self, username):
+        queryset = get_list_or_404(Followers, user__username=username)
+        return queryset
+
+    def get(self, request, username):
+        followers = self.get_queryset(username)
+        serializer = FollowersSerializer(followers, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
