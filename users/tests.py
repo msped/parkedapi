@@ -4,7 +4,7 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from .models import Profile
+from .models import Followers, Profile
 
 # Create your tests here.
 
@@ -249,7 +249,23 @@ class AuthTests(APITestCase):
         )
         access_token = access_request.data['access']
         response = self.client.get(
-            '/api/auth/following/test/',
+            '/api/auth/following/admin/',
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def return_followers(self):
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': '5up3R!00'
+            },
+            format='json'
+        )
+        access_token = access_request.data['access']
+        response = self.client.get(
+            '/api/auth/followers/test/',
             **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
         )
         self.assertEqual(response.status_code, 200)
@@ -286,6 +302,22 @@ class AuthTests(APITestCase):
         )
         self.assertEqual(response.status_code, 404)
 
+    def return_followers_empty(self):
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': '5up3R!00'
+            },
+            format='json'
+        )
+        access_token = access_request.data['access']
+        response = self.client.get(
+            '/api/auth/followers/admin/',
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        self.assertEqual(response.status_code, 404)
+
     def follow_does_not_exist(self):
         access_request = self.client.post(
             '/api/auth/jwt/create/',
@@ -317,6 +349,8 @@ class AuthTests(APITestCase):
         self.change_password_valid()
         self.follow_a_user()
         self.return_following()
+        self.return_followers()
         self.unfollow_a_user()
         self.return_following_empty()
+        self.return_followers_empty()
         self.follow_does_not_exist()
