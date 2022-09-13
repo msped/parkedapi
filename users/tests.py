@@ -4,7 +4,7 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from .models import Profile
+from .models import Followers, Profile
 
 # Create your tests here.
 
@@ -16,6 +16,10 @@ class AuthTests(APITestCase):
             email="matt@mspe.me",
             password=make_password("5up3R!97")
         )
+
+    def profile_str(self):
+        profile = Profile.objects.get(username="admin")
+        self.assertEqual(str(profile), "admin's Profile")
 
     def registration_working_response(self):
         response = self.client.post(
@@ -198,7 +202,6 @@ class AuthTests(APITestCase):
         self.assertEqual(response.status_code, 400)
 
     def change_password_valid(self):
-        
         access_request = self.client.post(
             '/api/auth/jwt/create/',
             {
@@ -219,7 +222,120 @@ class AuthTests(APITestCase):
         )
         self.assertEqual(response.status_code, 200)
 
+    def follow_a_user(self):
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': '5up3R!00'
+            },
+            format='json'
+        )
+        access_token = access_request.data['access']
+        response = self.client.post(
+            '/api/auth/follow/test/',
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        self.assertEqual(response.status_code, 201)
+
+    def return_following(self):
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': '5up3R!00'
+            },
+            format='json'
+        )
+        access_token = access_request.data['access']
+        response = self.client.get(
+            '/api/auth/following/admin/',
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def return_followers(self):
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': '5up3R!00'
+            },
+            format='json'
+        )
+        access_token = access_request.data['access']
+        response = self.client.get(
+            '/api/auth/followers/test/',
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def unfollow_a_user(self):
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': '5up3R!00'
+            },
+            format='json'
+        )
+        access_token = access_request.data['access']
+        response = self.client.post(
+            '/api/auth/follow/test/',
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        self.assertEqual(response.status_code, 204)
+
+    def return_following_empty(self):
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': '5up3R!00'
+            },
+            format='json'
+        )
+        access_token = access_request.data['access']
+        response = self.client.get(
+            '/api/auth/following/admin/',
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def return_followers_empty(self):
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': '5up3R!00'
+            },
+            format='json'
+        )
+        access_token = access_request.data['access']
+        response = self.client.get(
+            '/api/auth/followers/admin/',
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def follow_does_not_exist(self):
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': '5up3R!00'
+            },
+            format='json'
+        )
+        access_token = access_request.data['access']
+        response = self.client.post(
+            '/api/auth/follow/differentusername/',
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        self.assertEqual(response.status_code, 404)
+
     def test_in_order(self):
+        self.profile_str()
         self.registration_working_response()
         self.registration_invalid_username()
         self.registration_invalid_email()
@@ -231,3 +347,10 @@ class AuthTests(APITestCase):
         self.change_password_new_not_matching()
         self.change_password_wrong_old_password()
         self.change_password_valid()
+        self.follow_a_user()
+        self.return_following()
+        self.return_followers()
+        self.unfollow_a_user()
+        self.return_following_empty()
+        self.return_followers_empty()
+        self.follow_does_not_exist()

@@ -67,3 +67,11 @@ The layout for each each point is
     'new_password2': string
 }
 ```
+
+### Follow / Unfollow
+
+```/api/auth/follow/:username/ POST```
+
+Calling this URL if a user is already following an account will return `204 NO CONTENT` which results in the user being unfollowed. `201 CREATED` means that the user has been followed.
+
+If the username doesn't exist it will return `404 NOT FOUND`.
