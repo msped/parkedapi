@@ -4,7 +4,7 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from .models import Followers, Profile
+from .models import Profile
 
 # Create your tests here.
 
@@ -334,6 +334,58 @@ class AuthTests(APITestCase):
         )
         self.assertEqual(response.status_code, 404)
 
+    def block_a_user(self):
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': '5up3R!00'
+            },
+            format='json'
+        )
+        access_token = access_request.data['access']
+        response = self.client.post(
+            '/api/auth/block/test/',
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        profile = Profile.objects.get(username='admin')
+        self.assertTrue(profile.block_list.filter(username='test').exists())
+        self.assertEqual(response.status_code, 201)
+
+    def unblock_a_user(self):
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': '5up3R!00'
+            },
+            format='json'
+        )
+        access_token = access_request.data['access']
+        response = self.client.post(
+            '/api/auth/block/test/',
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        profile = Profile.objects.get(username='admin')
+        self.assertFalse(profile.block_list.filter(username='test').exists())
+        self.assertEqual(response.status_code, 204)
+
+    def block_a_user_that_doesnt_exist(self):
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': '5up3R!00'
+            },
+            format='json'
+        )
+        access_token = access_request.data['access']
+        response = self.client.post(
+            '/api/auth/block/differentusername/',
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        self.assertEqual(response.status_code, 404)
+
     def test_in_order(self):
         self.profile_str()
         self.registration_working_response()
@@ -354,3 +406,6 @@ class AuthTests(APITestCase):
         self.return_following_empty()
         self.return_followers_empty()
         self.follow_does_not_exist()
+        self.block_a_user()
+        self.unblock_a_user()
+        self.block_a_user_that_doesnt_exist()
