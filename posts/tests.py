@@ -5,7 +5,6 @@ from django.contrib.auth.hashers import make_password
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
 from PIL import Image
-from rest_framework import status
 from rest_framework.test import APITestCase
 from users.models import Profile
 
@@ -60,7 +59,38 @@ class TestPostApp(APITestCase):
             format='multipart',
             **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
         )
-        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+        self.assertEqual(201, response.status_code)
+
+    def get_post(self):
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': 'TestP455word!'
+            }
+        )
+        access_token = access_request.data['access']
+        post = Post.objects.get(description='Test image of car')
+        response = self.client.get(
+            f'/api/posts/{post.slug}/',
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        self.assertEqual(200, response.status_code)
+
+    def get_post_that_doesnt_exist(self):
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': 'TestP455word!'
+            }
+        )
+        access_token = access_request.data['access']
+        response = self.client.get(
+            '/api/posts/arandomslugthatdoesntexist/',
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        self.assertEqual(404, response.status_code)
 
     def post_like(self):
         access_request = self.client.post(
@@ -76,7 +106,7 @@ class TestPostApp(APITestCase):
             f'/api/posts/like/{post.slug}/',
             **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
         )
-        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+        self.assertEqual(201, response.status_code)
 
     def post_unlike(self):
         access_request = self.client.post(
@@ -92,7 +122,7 @@ class TestPostApp(APITestCase):
             f'/api/posts/like/{post.slug}/',
             **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
         )
-        self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
+        self.assertEqual(204, response.status_code)
 
     def new_comment(self):
         access_request = self.client.post(
@@ -111,7 +141,7 @@ class TestPostApp(APITestCase):
             },
             **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
         )
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, 201)
 
     def comment_like(self):
         access_request = self.client.post(
@@ -127,7 +157,7 @@ class TestPostApp(APITestCase):
             f'/api/posts/comment/like/{comment.id}/',
             **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
         )
-        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+        self.assertEqual(201, response.status_code)
 
     def comment_unlike(self):
         access_request = self.client.post(
@@ -143,7 +173,7 @@ class TestPostApp(APITestCase):
             f'/api/posts/comment/like/{comment.id}/',
             **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
         )
-        self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
+        self.assertEqual(204, response.status_code)
 
     def update_comment(self):
         access_request = self.client.post(
@@ -162,7 +192,7 @@ class TestPostApp(APITestCase):
             },
             **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
         )
-        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertEqual(200, response.status_code)
 
     def delete_comment(self):
         access_request = self.client.post(
@@ -178,7 +208,7 @@ class TestPostApp(APITestCase):
             f'/api/posts/comment/{comment.id}/',
             **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
         )
-        self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
+        self.assertEqual(204, response.status_code)
 
     def update_post(self):
         access_request = self.client.post(
@@ -197,7 +227,7 @@ class TestPostApp(APITestCase):
             },
             **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
         )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, 200)
 
     def delete_post(self):
         access_request = self.client.post(
@@ -213,10 +243,12 @@ class TestPostApp(APITestCase):
             f'/api/posts/{post.slug}/',
             **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
         )
-        self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
+        self.assertEqual(204, response.status_code)
 
     def test_in_order(self):
         self.new_post()
+        self.get_post()
+        self.get_post_that_doesnt_exist()
         self.post_like()
         self.post_unlike()
         self.new_comment()
