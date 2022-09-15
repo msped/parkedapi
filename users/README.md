@@ -12,6 +12,10 @@ The layout for each each point is
 }
 ```
 
+Further Information
+
+----------------------------
+
 ### Obtain Token (Login)
 
 ```/api/auth/jwt/create/ POST```
@@ -73,5 +77,25 @@ The layout for each each point is
 ```/api/auth/follow/:username/ POST```
 
 Calling this URL if a user is already following an account will return `204 NO CONTENT` which results in the user being unfollowed. `201 CREATED` means that the user has been followed.
+
+If the username doesn't exist it will return `404 NOT FOUND`.
+
+### Get Followers
+
+```/api/auth/followers/:username/ GET```
+
+Returns a users followers.
+
+### Get Following
+
+```/api/auth/following/:username/ GET```
+
+Return the accounts that a user is following.
+
+### Block a user
+
+```/api/auth/block/:username/ POST```
+
+Calling this URL if a user is already following an account will return `204 NO CONTENT` which results in the user being unblocked. `201 CREATED` means that the user has been blocked.
 
 If the username doesn't exist it will return `404 NOT FOUND`.

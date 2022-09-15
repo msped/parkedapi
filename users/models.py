@@ -8,6 +8,7 @@ class Profile(AbstractUser):
     private_account = models.BooleanField(default=False)
     website = models.URLField(null=True, blank=True)
     bio = models.TextField(max_length=256, null=True, blank=True)
+    block_list = models.ManyToManyField('self', symmetrical=False)
 
     def __str__(self):
         return f"{self.username}'s Profile"

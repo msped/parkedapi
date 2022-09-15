@@ -84,3 +84,19 @@ class GetFollowersView(APIView):
         followers = self.get_queryset(username)
         serializer = FollowersSerializer(followers, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class BlockView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, username):
+        obj = get_object_or_404(Profile, username=username)
+        return obj
+
+    def post(self, request, username):
+        profile = self.get_object(username)
+        current_user = self.get_object(request.user.username)
+        if current_user.block_list.filter(id=profile.id).exists():
+            current_user.block_list.remove(profile)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        current_user.block_list.add(profile)
+        return Response(status=status.HTTP_201_CREATED)
