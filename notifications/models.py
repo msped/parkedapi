@@ -34,6 +34,7 @@ class Notification(models.Model):
         blank=True,
         null=True
     )
+    text = models.CharField(max_length=255, blank=True, null=True)
     target_object_id = models.PositiveIntegerField(blank=True, null=True)
     target = GenericForeignKey('target_content_type', 'target_object_id')
     read = models.BooleanField(default=False)
