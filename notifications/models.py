@@ -21,12 +21,12 @@ class Notification(models.Model):
     sender = models.ForeignKey(
         Profile,
         on_delete=models.CASCADE,
-        related_name='sent_from'
+        related_name='sender'
     )
     recipient = models.ForeignKey(
         Profile,
         on_delete=models.CASCADE,
-        related_name='sent_to'
+        related_name='recipient'
     )
     target_content_type = models.ForeignKey(
         ContentType,
