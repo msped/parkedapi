@@ -17,11 +17,6 @@ class NotificationQuerySet(models.query.QuerySet):
         qset = qset.filter(recipient=recipient)
         return qset.update(read=True)
 
-    def mark_all_as_unread(self, recipient):
-        qset = self.read()
-        qset = qset.filter(recipient=recipient)
-        return qset.update(read=False)
-
 class Notification(models.Model):
     sender = models.ForeignKey(
         Profile,
