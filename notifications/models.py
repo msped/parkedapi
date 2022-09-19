@@ -46,7 +46,7 @@ class Notification(models.Model):
         index_together = ['recipient', 'read']
 
     def __str__(self):
-        return f'Sent to {self.recipient} - Read: {self.read}'
+        return f'Sent to {self.recipient.username} - Read: {self.read}'
 
     def mark_as_read(self):
         if not self.read:
