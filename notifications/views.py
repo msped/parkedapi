@@ -8,7 +8,7 @@ from .models import Notification
 
 
 class MarkAsRead(APIView):
-    def get(self, request, notification_id):
+    def post(self, request, notification_id):
         notification = get_object_or_404(
             Notification,
             id=notification_id
@@ -17,7 +17,7 @@ class MarkAsRead(APIView):
         return Response(status=status.HTTP_200_OK)
 
 class MarkAsUnread(APIView):
-    def get(self, request, notification_id):
+    def post(self, request, notification_id):
         notification = get_object_or_404(
             Notification,
             id=notification_id
@@ -26,7 +26,7 @@ class MarkAsUnread(APIView):
         return Response(status=status.HTTP_200_OK)
 
 class MarkAllAsRead(APIView):
-    def get(self, request):
+    def post(self, request):
         profile = get_object_or_404(Profile, id=request.user.id)
         Notification.objects.mark_all_as_read(recipient=profile)
         return Response(status=status.HTTP_200_OK)
