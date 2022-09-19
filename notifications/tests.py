@@ -43,6 +43,13 @@ class TestViews(APITestCase):
             target_content_type=c_type,
             target_object_id=1
         ).save()
+        Notification.objects.create(
+            sender=test,
+            recipient=admin,
+            text='test commented: "Sick that mate."',
+            target_content_type=c_type,
+            target_object_id=1
+        ).save()
 
 
     @classmethod
@@ -62,11 +69,16 @@ class TestViews(APITestCase):
             }
         )
         access_token = access_request.data['access']
-        response = self.client.get(
+        response = self.client.post(
             f'/api/notifications/read/{notification.id}/',
             **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
         )
         self.assertEqual(200, response.status_code)
+        self.assertTrue(
+            Notification.objects.filter(
+            text='test liked your post.',
+            read=True
+        ).exists())
 
     def mark_notification_as_unread(self):
         notification = Notification.objects.get(
@@ -80,15 +92,39 @@ class TestViews(APITestCase):
             }
         )
         access_token = access_request.data['access']
-        response = self.client.get(
+        response = self.client.post(
             f'/api/notifications/unread/{notification.id}/',
             **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
         )
         self.assertEqual(200, response.status_code)
+        self.assertTrue(
+            Notification.objects.filter(
+            text='test liked your post.',
+            read=False
+        ).exists())
+
+    def mark_all_as_read(self):
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': '5up3R!97'
+            }
+        )
+        access_token = access_request.data['access']
+        response = self.client.post(
+            '/api/notifications/read/all/',
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(Notification.objects.filter(
+            read=True
+        ).count(), 2)
 
     def test_in_order(self):
         self.mark_notification_as_read()
         self.mark_notification_as_unread()
+        self.mark_all_as_read()
 
 @override_settings(MEDIA_ROOT=MEDIA_ROOT)
 class TestModels(APITestCase):
