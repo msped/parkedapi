@@ -1,3 +1,5 @@
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query import QuerySet
@@ -48,6 +50,16 @@ def notify_handler(**kwargs):
         newnotify.save()
         serializer = NotificationSerializer(newnotify)
         new_notifications.append(serializer.data)
+
+        channel_layer = get_channel_layer()
+
+        async_to_sync(channel_layer.group_send)(
+            f'notifications-{sender.id}',
+            {
+                'type': 'notification',
+                'message': serializer.data
+            }
+        )
 
     return new_notifications
 
