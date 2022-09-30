@@ -6,7 +6,7 @@ class NotificationConsumer(WebsocketConsumer):
         if self.scope["user"].is_anonymous:
             self.close()
         else:
-            self.group_name = str(self.scope["user"].pk)
+            self.group_name = str(f'notifications-{self.scope["user"].pk}')
             async_to_sync(self.channel_layer.group_add)(self.group_name, self.channel_name)
             self.accept()
 
