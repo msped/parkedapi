@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'rest_framework',
-    'channels',
     'djoser',
     'corsheaders',
     'users',
@@ -88,8 +87,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'parkedapi.wsgi.application'
 
-ASGI_APPLICATION = 'parkedapi.routing.application'
-
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
@@ -101,15 +98,6 @@ DATABASES = {
         'PASSWORD': os.environ.get('DB_PASSWORD'),
         'HOST': 'localhost',
         'PORT': os.environ.get('DB_PORT', ''),
-    }
-}
-
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            'hosts': [('redis', 6379)]
-        }
     }
 }
 
