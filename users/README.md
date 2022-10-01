@@ -60,6 +60,8 @@ Further Information
 }
 ```
 
+Username can be upto 30 characters and include letters, numbers, _, ., and -.
+
 ### Change password
 
 ```/api/auth/change-password POST```
