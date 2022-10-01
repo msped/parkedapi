@@ -1,9 +1,16 @@
+from enum import unique
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import RegexValidator
 
 # Create your models here.
 
 class Profile(AbstractUser):
+    allow_chars = RegexValidator(
+        r'^[\w](?!.*?\.{2})[\w.]{1,30}[\w]$',
+        'Only letters, numbers, -, ., and _ are allowed.'
+    )
+    username = models.CharField(max_length=30, validators=[allow_chars], unique=True)
     profile_picture = models.ImageField(upload_to="profile_pictures/", null=True, blank=True)
     private_account = models.BooleanField(default=False)
     website = models.URLField(null=True, blank=True)
