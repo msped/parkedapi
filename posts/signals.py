@@ -34,7 +34,7 @@ def comment_notification(sender, instance, **kwargs):
         sender=profile,
         recipient=recipient,
         target=comment,
-        text=f'{profile.username} has comment on your post: "{instance.content}"'
+        text=f'{profile.username} has commented on your post: "{instance.content}"'
     )
 
 post_save.connect(
