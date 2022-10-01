@@ -4,7 +4,7 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from .models import Profile
+from .models import Followers, Profile
 
 # Create your tests here.
 
@@ -16,10 +16,6 @@ class AuthTests(APITestCase):
             email="matt@mspe.me",
             password=make_password("5up3R!97")
         )
-
-    def profile_str(self):
-        profile = Profile.objects.get(username="admin")
-        self.assertEqual(str(profile), "admin's Profile")
 
     def registration_working_response(self):
         response = self.client.post(
@@ -387,7 +383,6 @@ class AuthTests(APITestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_in_order(self):
-        self.profile_str()
         self.registration_working_response()
         self.registration_invalid_username()
         self.registration_invalid_email()
@@ -409,3 +404,38 @@ class AuthTests(APITestCase):
         self.block_a_user()
         self.unblock_a_user()
         self.block_a_user_that_doesnt_exist()
+
+class AuthModelTests(APITestCase):
+
+    def setUp(self):
+        Profile.objects.create(
+            username="admin",
+            email="matt@mspe.me",
+            password=make_password("5up3R!97")
+        )
+        Profile.objects.create(
+            username="test",
+            email="test@mspe.me",
+            password=make_password("5up3R!97")
+        )
+        follower = Profile.objects.get(username='test')
+        user = Profile.objects.get(username='admin')
+        Followers.objects.create(
+            user=user,
+            follower=follower
+        )
+
+    def profile_str(self):
+        profile = Profile.objects.get(username="admin")
+        self.assertEqual(str(profile), "admin's Profile")
+
+    def followers_str(self):
+        followers = Followers.objects.get(
+            user__username='admin',
+            follower__username='test'
+        )
+        self.assertEqual(str(followers), 'test is following admin')
+
+    def test_in_order(self):
+        self.profile_str()
+        self.followers_str()
