@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'users',
     'posts.apps.PostsConfig',
-    'notifications',
+    'notifications.apps.NotificationsConfig',
 
     'rest_framework_simplejwt.token_blacklist',
     ## Must stay at the bottom
