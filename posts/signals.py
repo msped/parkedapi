@@ -1,18 +1,19 @@
 from django.db.models.signals import post_save
+from notifications.mentions import check_for_mention
 from notifications.signals import notify
 from users.models import Profile
 
 from .models import Comment, CommentLikes, Post, PostLikes
 
 def post_like(sender, instance, **kwargs):
-    post = Post.objects.get(id=instance.id)
+    post = Post.objects.get(id=instance.post.id)
     profile = Profile.objects.get(id=instance.profile.id)
-    recipient = Profile.objects.get(id=instance.author.id)
+    recipient = Profile.objects.get(id=instance.post.author.id)
     notify.send(
         sender=profile,
         recipient=recipient,
         target=post,
-        text=f'{profile.username} has liked your post.'
+        text=f'@{profile.username} has liked your post.'
     )
 
 def comment_like(sender, instance, **kwargs):
@@ -23,7 +24,7 @@ def comment_like(sender, instance, **kwargs):
         sender=profile,
         recipient=recipient,
         target=comment,
-        text=f'{profile.username} liked your comment.'
+        text=f'@{profile.username} liked your comment.'
     )
 
 def comment_notification(sender, instance, **kwargs):
@@ -34,7 +35,7 @@ def comment_notification(sender, instance, **kwargs):
         sender=profile,
         recipient=recipient,
         target=comment,
-        text=f'{profile.username} has commented on your post: "{instance.content}"'
+        text=f'@{profile.username} has commented on your post: "{instance.content}"'
     )
 
 post_save.connect(
