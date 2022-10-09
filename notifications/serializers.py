@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from posts.models import Comment, CommentLikes, PostLikes
+from posts.models import Comment, CommentLikes, PostLikes, Post
 from posts.serializers import (CommentSerializer, CommentsLikeSerializer,
-                               PostLikeSerializer)
+                               PostLikeSerializer, PostSerializer)
 from users.models import Followers
 from users.serializers import FollowersSerializer, ShortProfileSerializer
 
@@ -17,6 +17,8 @@ class TargetObjectSerializer(serializers.RelatedField):
             serializer = CommentSerializer(value)
         elif isinstance(value, Followers):
             serializer = FollowersSerializer(value)
+        elif isinstance(value, Post):
+            serializer = PostSerializer(value)
         else:
             raise Exception("Unexpected type of target object.")
 
@@ -25,7 +27,7 @@ class TargetObjectSerializer(serializers.RelatedField):
 class NotificationSerializer(serializers.ModelSerializer):
     sender = ShortProfileSerializer()
     recipient = ShortProfileSerializer()
-    target = TargetObjectSerializer()
+    target = TargetObjectSerializer(read_only=True)
 
     class Meta:
         model = Notification
@@ -34,5 +36,6 @@ class NotificationSerializer(serializers.ModelSerializer):
             'recipient',
             'target',
             'read',
-            'timestamp'
+            'timestamp',
+            'text'
         ]
