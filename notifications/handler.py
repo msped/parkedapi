@@ -5,18 +5,18 @@ from django.utils import timezone
 from swapper import load_model
 
 from .serializers import NotificationSerializer
-from .signals import notify
 
-def notify_handler(**kwargs):
+def notify_handler(sender, **kwargs):
     # Pull the options out of kwargs
     kwargs.pop('signal', None)
-    sender = kwargs.pop('sender')
+    profile = kwargs.pop('profile')
     recipient = kwargs.pop('recipient')
     optional_objs = [
         (kwargs.pop(opt, None), opt)
         for opt in ('target',)
     ]
     read = kwargs.pop('read', False)
+    text = kwargs.pop('text')
     timestamp = kwargs.pop('timestamp', timezone.now())
     notification_model = load_model('notifications', 'Notification')
 
@@ -32,10 +32,11 @@ def notify_handler(**kwargs):
 
     for recipient in recipients:
         newnotify = notification_model(
-            sender=sender,
+            sender=profile,
             recipient=recipient,
             read=read,
-            timestamp=timestamp
+            timestamp=timestamp,
+            text=text
         )
 
         # Set optional objects
@@ -50,7 +51,3 @@ def notify_handler(**kwargs):
         new_notifications.append(serializer.data)
 
     return new_notifications
-
-
-# connect the signal
-notify.connect(notify_handler, dispatch_uid='notifications.models.notification')
