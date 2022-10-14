@@ -29,7 +29,7 @@ class PostLikes(models.Model):
         return f"{self.profile.username} likes {self.post.author.username}'s post"
 
 class Comment(models.Model):
-    profile = models.ForeignKey(Profile , on_delete=models.CASCADE)
+    author = models.ForeignKey(Profile , on_delete=models.CASCADE)
     post = models.ForeignKey(Post , on_delete=models.CASCADE)
     content = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -38,11 +38,11 @@ class Comment(models.Model):
         return CommentLikes.objects.filter(comment=self.id).count()
 
     def __str__(self):
-        return f'{self.profile.username} - {self.post}'
+        return f'{self.author.username} - {self.post}'
 
 class CommentLikes(models.Model):
     comment = models.ForeignKey(Comment , on_delete=models.CASCADE)
     profile = models.ForeignKey(Profile , on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.profile.username} likes {self.comment.profile.username}'s comment"
+        return f"{self.profile.username} likes {self.comment.author.username}'s comment"

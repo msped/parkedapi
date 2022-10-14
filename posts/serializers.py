@@ -21,13 +21,13 @@ class PostPatchSerializer(serializers.ModelSerializer):
         ]
 
 class CommentSerializer(serializers.ModelSerializer):
-    profile = serializers.PrimaryKeyRelatedField(read_only=True)
+    author = serializers.PrimaryKeyRelatedField(read_only=True)
     post = serializers.PrimaryKeyRelatedField(read_only=True)
     created_at = serializers.ReadOnlyField()
     class Meta:
         model = Comment
         fields = [
-            'profile',
+            'author',
             'post',
             'content',
             'created_at'

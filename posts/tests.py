@@ -319,7 +319,7 @@ class TestModels(APITestCase):
         post = Post.objects.get(description='Test')
         profile = Profile.objects.get(username='asset')
         com = Comment.objects.create(
-            profile=profile,
+            author=profile,
             post=post,
             content='Cool post.'
         )
