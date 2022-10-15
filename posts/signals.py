@@ -10,7 +10,8 @@ def post_like(sender, instance, **kwargs):
     profile = Profile.objects.get(id=instance.profile.id)
     recipient = Profile.objects.get(id=instance.post.author.id)
     notify.send(
-        sender=profile,
+        sender=PostLikes,
+        profile=profile,
         recipient=recipient,
         target=post,
         text=f'@{profile.username} has liked your post.'
@@ -19,9 +20,10 @@ def post_like(sender, instance, **kwargs):
 def comment_like(sender, instance, **kwargs):
     comment = Comment.objects.get(id=instance.comment.id)
     profile = Profile.objects.get(id=instance.profile.id)
-    recipient = Profile.objects.get(id=instance.comment.profile.id)
+    recipient = Profile.objects.get(id=instance.comment.author.id)
     notify.send(
-        sender=profile,
+        sender=CommentLikes,
+        profile=profile,
         recipient=recipient,
         target=comment,
         text=f'@{profile.username} liked your comment.'
@@ -29,10 +31,16 @@ def comment_like(sender, instance, **kwargs):
 
 def comment_notification(sender, instance, **kwargs):
     comment = Comment.objects.get(id=instance.id)
-    profile = Profile.objects.get(id=instance.profile.id)
+    profile = Profile.objects.get(id=instance.author.id)
     recipient = Profile.objects.get(id=instance.post.author.id)
+    check_for_mention(
+        profile=profile,
+        target=comment,
+        content=instance.content
+    )
     notify.send(
-        sender=profile,
+        sender=Comment,
+        profile=profile,
         recipient=recipient,
         target=comment,
         text=f'@{profile.username} has commented on your post: "{instance.content}"'
