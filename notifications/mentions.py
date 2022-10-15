@@ -16,11 +16,13 @@ def check_instance(target):
 
 def check_for_mention(profile, target, content):
     mentions = re.findall(r'\B@([._a-z0-9]{4,30})\b', content)
+    instance = check_instance(target)
+    if instance in mentions:
+        mentions.remove(instance)
     if mentions:
-        instance = check_instance(target)
         mention_instances = Profile.objects.filter(
             username__in=mentions
-        ).exclude(username=instance)
+        )
         notify.send(
             sender=Comment,
             profile=profile,
