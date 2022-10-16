@@ -14,7 +14,7 @@ def check_instance(target):
         raise Exception("Unexpected type of target.")
     return username
 
-def check_for_mention(profile, target, content):
+def check_for_mention(profile, target, content, text):
     mentions = re.findall(r'\B@([._a-z0-9]{4,30})\b', content)
     instance = check_instance(target)
     if instance in mentions:
@@ -24,9 +24,9 @@ def check_for_mention(profile, target, content):
             username__in=mentions
         )
         notify.send(
-            sender=Comment,
+            sender=None,
             profile=profile,
             recipient=mention_instances,
             target=target,
-            text=f'@{profile.username} mentioned you in a comment.'
+            text=text
         )
