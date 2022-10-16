@@ -5,10 +5,11 @@ from django.contrib.auth.hashers import make_password
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
 from rest_framework.test import APITestCase
-from posts.models import Post
+from posts.models import Post, Comment, CommentLikes
 from users.models import Profile
 
 from .models import Notification
+from .mentions import check_instance
 
 MEDIA_ROOT = tempfile.mkdtemp()
 
@@ -171,3 +172,49 @@ class TestModels(APITestCase):
             str(notification),
             'Sent to admin - Read: False'
         )
+
+@override_settings(MEDIA_ROOT=MEDIA_ROOT)
+class TestMentions(APITestCase):
+    def setUp(self):
+        Profile.objects.create(
+            username="admin",
+            email="matt@mspe.me",
+            password=make_password("5up3R!97")
+        )
+        profile = Profile.objects.get(username='admin')
+        Post.objects.create(
+            author= profile,
+            image=SimpleUploadedFile('test.png', b'testimage'),
+            description='Test'
+        ).save()
+        post = Post.objects.get(description='Test')
+        Comment.objects.create(
+            author=profile,
+            post=post,
+            content='Cool post.'
+        ).save()
+        comment = Comment.objects.get(content='Cool post.')
+        CommentLikes.objects.create(
+            comment=comment,
+            profile=profile
+        ).save()
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(MEDIA_ROOT, ignore_errors=True)
+        super().tearDownClass()
+
+    def test_check_instance_post_working(self):
+        post = Post.objects.get(description='Test')
+        response = check_instance(post)
+        self.assertEqual(response, 'admin')
+
+    def test_check_instance_comment_working(self):
+        comment = Comment.objects.get(content='Cool post.')
+        response = check_instance(comment)
+        self.assertEqual(response, 'admin')
+
+    def test_check_instance_exception(self):
+        commentlike = CommentLikes.objects.get(comment__content='Cool post.')
+        with self.assertRaises(Exception):
+            check_instance(commentlike)
