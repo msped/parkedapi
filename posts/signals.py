@@ -5,6 +5,16 @@ from users.models import Profile
 
 from .models import Comment, CommentLikes, Post, PostLikes
 
+def post_add(sender, instance, **kwargs):
+    profile = Profile.objects.get(id=instance.author.id)
+    post = Post.objects.get(id=instance.id)
+    check_for_mention(
+        profile=profile,
+        target=post,
+        content=instance.description,
+        text=f'@{profile.username} mentioned you in a post.'
+    )
+
 def post_like(sender, instance, **kwargs):
     post = Post.objects.get(id=instance.post.id)
     profile = Profile.objects.get(id=instance.profile.id)
@@ -36,16 +46,23 @@ def comment_notification(sender, instance, **kwargs):
     check_for_mention(
         profile=profile,
         target=comment,
-        content=instance.content
+        content=instance.content,
+        text=f'@{profile.username} mentioned you in a comment.'
     )
-    notify.send(
-        sender=Comment,
-        profile=profile,
-        recipient=recipient,
-        target=comment,
-        text=f'@{profile.username} has commented on your post: "{instance.content}"'
-    )
+    if profile.username != recipient.username:
+        notify.send(
+            sender=Comment,
+            profile=profile,
+            recipient=recipient,
+            target=comment,
+            text=f'@{profile.username} has commented on your post: "{instance.content}"'
+        )
 
+post_save.connect(
+    post_add,
+    sender=Post,
+    dispatch_uid='post_add_mentions'
+)
 post_save.connect(
     post_like,
     sender=PostLikes,
