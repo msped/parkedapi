@@ -2,10 +2,12 @@
 
 REST API for Parked, a photo sharing platform for car enthusiasts.
 
-## Users
+------
 
-[Endpoints](/users/README.md)
+## Endpoints
 
-## Posts
+[Users](/users/README.md)
 
-[Endpoints](/posts/README.md)
+[Posts](/posts/README.md)
+
+[Notifications](/notifications/README.md)

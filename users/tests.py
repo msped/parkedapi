@@ -234,6 +234,15 @@ class AuthTests(APITestCase):
         )
         self.assertEqual(response.status_code, 201)
 
+    def followers_str(self):
+        admin = Profile.objects.get(username='admin')
+        test = Profile.objects.get(username='test')
+        followers = Followers.objects.get(
+            user=test,
+            follower=admin
+        )
+        self.assertEqual(str(followers), 'admin is following test')
+
     def return_following(self):
         access_request = self.client.post(
             '/api/auth/jwt/create/',
@@ -395,6 +404,7 @@ class AuthTests(APITestCase):
         self.change_password_wrong_old_password()
         self.change_password_valid()
         self.follow_a_user()
+        self.followers_str()
         self.return_following()
         self.return_followers()
         self.unfollow_a_user()

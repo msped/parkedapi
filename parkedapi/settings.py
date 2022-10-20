@@ -31,7 +31,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1:8000', '127.0.0.1',]
 
 
 # Application definition
@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     'djoser',
     'corsheaders',
     'users',
-    'posts',
+    'posts.apps.PostsConfig',
+    'notifications.apps.NotificationsConfig',
 
     'rest_framework_simplejwt.token_blacklist',
     ## Must stay at the bottom
@@ -86,7 +87,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'parkedapi.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
@@ -100,7 +100,6 @@ DATABASES = {
         'PORT': os.environ.get('DB_PORT', ''),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -152,6 +151,8 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 10
 }
 
 SIMPLE_JWT = {

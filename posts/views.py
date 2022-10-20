@@ -62,7 +62,7 @@ class CommentNew(CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(
-            profile_id=self.request.user.id,
+            author_id=self.request.user.id,
             post=self.get_object()
         )
 
