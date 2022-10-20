@@ -1,10 +1,12 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import status
+from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from users.models import Profile
 
 from .models import Notification
+from .serializers import NotificationSerializer
 
 
 class MarkAsRead(APIView):
@@ -30,3 +32,10 @@ class MarkAllAsRead(APIView):
         profile = get_object_or_404(Profile, id=request.user.id)
         Notification.objects.mark_all_as_read(recipient=profile)
         return Response(status=status.HTTP_200_OK)
+
+class GetAll(ListAPIView):
+    serializer_class = NotificationSerializer
+    paginate_by = 10
+
+    def get_queryset(self):
+        return Notification.objects.filter(recipient__id=self.request.user.id)
