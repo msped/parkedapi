@@ -137,6 +137,12 @@ class TestViews(APITestCase):
         )
         self.assertEqual(response.status_code, 200)
 
+    def get_all_notifications_unauthorised(self):
+        response = self.client.get(
+            '/api/notifications/all/'
+        )
+        self.assertEqual(response.status_code, 401)
+
     def get_notification(self):
         access_request = self.client.post(
             '/api/auth/jwt/create/',
@@ -176,6 +182,7 @@ class TestViews(APITestCase):
         self.mark_notification_as_unread()
         self.mark_all_as_read()
         self.get_all_notifications()
+        self.get_all_notifications_unauthorised()
         self.get_notification()
         self.get_notification_404()
 
