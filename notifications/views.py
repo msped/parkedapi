@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from users.models import Profile
@@ -9,6 +10,8 @@ from .models import Notification
 from .serializers import NotificationSerializer
 
 class MarkAsRead(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request, notification_id):
         notification = get_object_or_404(
             Notification,
@@ -18,6 +21,8 @@ class MarkAsRead(APIView):
         return Response(status=status.HTTP_200_OK)
 
 class MarkAsUnread(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request, notification_id):
         notification = get_object_or_404(
             Notification,
@@ -27,6 +32,8 @@ class MarkAsUnread(APIView):
         return Response(status=status.HTTP_200_OK)
 
 class MarkAllAsRead(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         profile = get_object_or_404(Profile, id=request.user.id)
         Notification.objects.mark_all_as_read(recipient=profile)
@@ -35,12 +42,14 @@ class MarkAllAsRead(APIView):
 class GetAll(ListAPIView):
     serializer_class = NotificationSerializer
     paginate_by = 10
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return Notification.objects.filter(recipient__id=self.request.user.id)
 
 class GetNotification(RetrieveAPIView):
     serializer_class = NotificationSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return Notification.objects.filter(recipient__id=self.request.user.id)
