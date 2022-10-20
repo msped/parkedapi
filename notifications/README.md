@@ -12,6 +12,12 @@ The layout for each each point is
 }
 ```
 
+### Get all 
+
+```/api/notifications/all/ GET```
+
+Paginated response of a users notifications, read and unread.
+
 ### Mark as read
 
 ```/api/notifications/:notification_id POST```
@@ -24,5 +30,3 @@ The layout for each each point is
 
 ```/api/notifications/:notification_id POST```
 
-
-## Websockets
