@@ -137,12 +137,32 @@ class TestViews(APITestCase):
         )
         self.assertEqual(response.status_code, 200)
 
+    def get_notification(self):
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': '5up3R!97'
+            }
+        )
+        access_token = access_request.data['access']
+        notification = Notification.objects.get(
+            text='test liked your post.',
+            target_object_id=1
+        )
+        response = self.client.get(
+            f'/api/notifications/{notification.id}/',
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        print(response.content)
+        self.assertEqual(response.status_code, 200)
+
     def test_in_order(self):
         self.mark_notification_as_read()
         self.mark_notification_as_unread()
         self.mark_all_as_read()
         self.get_all_notifications()
-        # self.get_notification()
+        self.get_notification()
 
 @override_settings(MEDIA_ROOT=MEDIA_ROOT)
 class TestModels(APITestCase):
