@@ -154,8 +154,22 @@ class TestViews(APITestCase):
             f'/api/notifications/{notification.id}/',
             **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
         )
-        print(response.content)
         self.assertEqual(response.status_code, 200)
+
+    def get_notification_404(self):
+        access_request = self.client.post(
+            '/api/auth/jwt/create/',
+            {
+                'username': 'admin',
+                'password': '5up3R!97'
+            }
+        )
+        access_token = access_request.data['access']
+        response = self.client.get(
+            '/api/notifications/105/',
+            **{'HTTP_AUTHORIZATION': f'Bearer {access_token}'}
+        )
+        self.assertEqual(response.status_code, 404)
 
     def test_in_order(self):
         self.mark_notification_as_read()
@@ -163,6 +177,7 @@ class TestViews(APITestCase):
         self.mark_all_as_read()
         self.get_all_notifications()
         self.get_notification()
+        self.get_notification_404()
 
 @override_settings(MEDIA_ROOT=MEDIA_ROOT)
 class TestModels(APITestCase):
