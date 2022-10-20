@@ -18,6 +18,10 @@ The layout for each each point is
 
 Paginated response of a users notifications, read and unread.
 
+### Get notification
+
+```/api/notifications/:notification_id GET```
+
 ### Mark as read
 
 ```/api/notifications/:notification_id POST```
